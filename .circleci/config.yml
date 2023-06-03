@@ -6,18 +6,12 @@ orbs:
 jobs:
   build-and-deploy:
     docker:
-      - image: circleci/:3.7
       - image: circleci/node:13.8.0
+      - image: circleci/:3.7
     steps:
       - checkout
 
       # Step 1: Linting
-      - run:
-          name: Install AWS CLI
-          command: |
-            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-            unzip awscliv2.zip
-            sudo ./aws/install
 
       - run:
           name: install dependencies
@@ -33,6 +27,12 @@ jobs:
       - setup_remote_docker:
           version: 20.10.7
 
+      - run:
+          name: Install AWS CLI
+          command: |
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install
       # Step 3: Blue/Green Deployment
       - run:
           name: Install AWS IAM Authenticator
