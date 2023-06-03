@@ -19,7 +19,7 @@ jobs:
   build-and-deploy:
     docker:
       - image: circleci/node:13.8.0
-      - image: circleci/python:2.7
+      - image: circleci/python:3.7
     steps:
       - checkout
       # Step 1: Linting
