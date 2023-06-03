@@ -34,8 +34,8 @@ jobs:
             # Wait for the CloudFormation stack to complete
             aws cloudformation wait stack-create-complete --stack-name capstone-project-final
 
-      # Step 4: Configure AWS EKS
-      - aws-eks/configure-kubectl:
+      # Step 4: Update kubeconfig for AWS EKS cluster
+      - aws-eks/update-kubeconfig:
           cluster-name: capstone-project-final
           aws-region: $AWS_DEFAULT_REGION
 
@@ -43,7 +43,7 @@ jobs:
       - run:
           name: Deploy Kubernetes resources
           command: |
-            kubectl apply -f deployments/deployments.yml --record
+            kubectl apply -f deployments/deployment.yml --record
             kubectl rollout status deployment/capstone-engineer-cloud-hotanphat
 
 workflows:
