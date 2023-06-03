@@ -35,6 +35,30 @@ jobs:
 
       # Step 3: Blue/Green Deployment
       - run:
+          name: Install AWS CLI
+          command: |
+            export PIP=$(which pip pip3 | head -1)
+            if [[ -n $PIP ]]; then
+              if which sudo > /dev/null; then
+                sudo $PIP install awscli --upgrade
+              else
+                $PIP install awscli --upgrade --user
+              fi
+            elif [[ $(which unzip curl | wc -l) -eq 2 ]]; then
+              curl "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip" -o "awscli-bundle.zip"
+              unzip awscli-bundle.zip
+              if which sudo > /dev/null; then
+                sudo ./awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws
+              else
+                ./awscli-bundle/install -b ~/bin/aws
+              fi
+              rm -rf awscli-bundle*
+            else
+              echo "Unable to install AWS CLI. Please install pip."
+              exit 1
+            fi
+
+      - run:
           name: Install AWS IAM Authenticator
           command: |
             if which aws-iam-authenticator > /dev/null; then
