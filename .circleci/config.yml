@@ -1,47 +1,50 @@
 version: 2.1
 
 orbs:
-  aws-eks: circleci/aws-eks@0.2.3
-  aws-ecr: circleci/aws-ecr@3.1.0
+  aws-eks: circleci/aws-eks@1.1.0
+
 jobs:
   build-and-deploy:
     docker:
-      - image: circleci/node:13.8.0
+      - image: circleci/python:3.7
 
     steps:
       - checkout
-      # Step 1: Linting
+
+      # Step 1: Install AWS CLI
       - run:
-          name: install dependencies
+          name: Install AWS CLI
           command: |
-            sudo wget -O /bin/hadolint https://github.com/hadolint/hadolint/releases/download/v1.16.3/hadolint-Linux-x86_64
-            sudo chmod +x /bin/hadolint
+            python3 -m pip install awscli --upgrade --user
 
+      # Step 2: Configure AWS credentials
       - run:
-          name: Run Lint
+          name: Configure AWS credentials
           command: |
-            hadolint Dockerfile
+            echo AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID >> $BASH_ENV
+            echo AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY >> $BASH_ENV
+            echo AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION >> $BASH_ENV
 
-      - setup_remote_docker:
-          version: 20.10.7
-
-      # Step 3: Blue/Green Deployment
+      # Step 3: Deploy CloudFormation stack
       - run:
-          name: Install AWS IAM Authenticator
+          name: Deploy CloudFormation stack
           command: |
-            if which aws-iam-authenticator > /dev/null; then
-              echo "AWS IAM Authenticator for Kubernetes is already installed"
-              exit 0
-            fi
+            aws cloudformation deploy --stack-name capstone-project-final --template-file cloudformation/cloudformation.yml --parameter-overrides ID=$ID --capabilities CAPABILITY_IAM
 
-            curl -o aws-iam-authenticator https://amazon-eks.s3.us-east-1.amazonaws.com/1.20.7/2021-04-12/bin/linux/amd64/aws-iam-authenticator
-            chmod +x aws-iam-authenticator
-            sudo mv aws-iam-authenticator /usr/local/bin/
+            # Wait for the CloudFormation stack to complete
+            aws cloudformation wait stack-create-complete --stack-name capstone-project-final
 
-      - aws-eks/update-kubeconfig-with-authenticator:
+      # Step 4: Configure AWS EKS
+      - aws-eks/configure-kubectl:
           cluster-name: capstone-project-final
-          install-kubectl: true
           aws-region: $AWS_DEFAULT_REGION
+
+      # Step 5: Deploy Kubernetes resources
+      - run:
+          name: Deploy Kubernetes resources
+          command: |
+            kubectl apply -f deployments/deployments.yml --record
+            kubectl rollout status deployment/capstone-engineer-cloud-hotanphat
 
 workflows:
   version: 2
