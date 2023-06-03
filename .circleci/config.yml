@@ -4,17 +4,6 @@ orbs:
   aws-eks: circleci/aws-eks@0.2.3
   aws-ecr: circleci/aws-ecr@3.1.0
 
-commands:
-  install_awscli:
-    description: Install AWS CLI v2
-    steps:
-      - run:
-          name: Install AWS CLI v2
-          command: |
-            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-            unzip awscliv2.zip
-            sudo ./aws/instal
-
 jobs:
   build-and-deploy:
     docker:
@@ -62,8 +51,6 @@ jobs:
           cluster-name: capstone-project-final
           install-kubectl: true
           aws-region: $AWS_DEFAULT_REGION
-
-      - install_awscli
 
       # - run:
       #     name: Deploy Kubernetes Cluster
