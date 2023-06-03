@@ -19,10 +19,9 @@ jobs:
   build-and-deploy:
     docker:
       - image: circleci/node:13.8.0
-      - image: amazon/aws-cli:2.7.21
     steps:
       - checkout
-
+      - install_awscli
       # Step 1: Linting
       - run:
           name: install dependencies
@@ -44,10 +43,6 @@ jobs:
             export IMAGE_NAME=capstone-project-final
 
             docker build -t phat99/$IMAGE_NAME:$TAG .
-
-      - run:
-          name: Verify AWS CLI Installation
-          command: aws --version
 
       # Step 3: Blue/Green Deployment
       - run:
