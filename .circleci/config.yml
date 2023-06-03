@@ -3,7 +3,7 @@ version: 2.1
 orbs:
   aws-eks: circleci/aws-eks@0.2.3
   aws-ecr: circleci/aws-ecr@3.1.0
-
+  aws-cli: opensimsim/aws-cli@1.2.1
 jobs:
   build-and-deploy:
     docker:
@@ -25,14 +25,6 @@ jobs:
 
       - setup_remote_docker:
           version: 20.10.7
-
-      # Step 2: Install AWS CLI
-      - run:
-          name: Install AWS CLI
-          command: |
-            curl "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip" -o "awscli-bundle.zip"
-            unzip awscli-bundle.zip
-            sudo ./awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws
 
       # Step 3: Blue/Green Deployment
       - run:
