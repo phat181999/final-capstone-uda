@@ -18,6 +18,7 @@ jobs:
           command: |
             npm install eslint --save-dev
             npx eslint .
+
       # Step 2: Build Docker Image
       - run:
           name: Build Docker Image
@@ -32,13 +33,11 @@ jobs:
           cluster-name: YOUR_CLUSTER_NAME
           install-kubectl: true
           aws-region: YOUR_AWS_REGION
-          version: "1.20"
 
       - run:
           name: Apply Kubernetes Deployment
           command: |
             kubectl apply -f deployments/deployments.yml --record
-
             kubectl rollout status deployment/your-deployment-name
 
 workflows:
