@@ -13,11 +13,21 @@ jobs:
       - checkout
 
       # Step 1: Linting
-      - run:
-          name: Linting
-          command: |
-            npm install eslint --save-dev
-            npx eslint .
+    - run-lint:
+        docker:
+          - image: circleci/node:13.8.0
+        steps:
+          - checkout
+          - run:
+              name: install dependencies
+              command: |
+                sudo wget -O /bin/hadolint https://github.com/hadolint/hadolint/releases/download/v1.16.3/hadolint-Linux-x86_64
+                sudo chmod +x /bin/hadolint
+          - run:
+              name: Run Lint
+              command: |
+                hadolint Dockerfile
+
 
       # Step 2: Build Docker Image
       - run:
