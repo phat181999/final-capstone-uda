@@ -19,7 +19,7 @@ jobs:
   build-and-deploy:
     docker:
       - image: circleci/node:13.8.0
-      - image: circleci/python:3.8
+      - image: circleci/python:2.7
     steps:
       - checkout
       # Step 1: Linting
@@ -35,10 +35,9 @@ jobs:
       - run:
           name: Install AWS CLI
           command: |
-            curl -sS "https://bootstrap.pypa.io/get-pip.py" -o "get-pip.py"
-            python get-pip.py --user
-            export PATH=$HOME/.local/bin:$PATH
-            pip install --upgrade awscli --user
+            curl "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip" -o "awscli-bundle.zip"
+            unzip awscli-bundle.zip
+            sudo ./awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws
 
       - run:
           name: Verify AWS CLI Installation
