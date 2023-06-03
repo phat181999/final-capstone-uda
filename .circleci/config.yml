@@ -40,6 +40,42 @@ jobs:
           aws-region: $AWS_DEFAULT_REGION
 
       - run:
+          name: Install AWS IAM Authenticator
+          command: |
+            if which aws-iam-authenticator > /dev/null; then
+              echo "AWS IAM Authenticator for Kubernetes is already installed"
+              exit 0
+            fi
+
+            PLATFORM="linux"
+            if [ -n "$(uname | grep "Darwin")" ]; then
+              PLATFORM="darwin"
+            fi
+
+            RELEASE_TAG=""
+            RELEASE_URL="https://api.github.com/repos/kubernetes-sigs/aws-iam-authenticator/releases/latest"
+
+            if [ -n "${RELEASE_TAG}" ]; then
+              RELEASE_URL="https://api.github.com/repos/kubernetes-sigs/aws-iam-authenticator/releases/tags/${RELEASE_TAG}"
+            fi
+
+            DOWNLOAD_URL=$(curl -s --retry 5 "${RELEASE_URL}" \
+                | grep "${PLATFORM}" | awk '/browser_download_url/ {print $2}' | sed 's/"//g')
+
+            DOWNLOAD_URL=$(echo "${DOWNLOAD_URL}" | tr -d '\r')
+
+            curl -L -o aws-iam-authenticator "$DOWNLOAD_URL"
+
+            chmod +x ./aws-iam-authenticator
+
+            SUDO=""
+            if [ $(id -u) -ne 0 ] && which sudo > /dev/null ; then
+              SUDO="sudo"
+            fi
+
+            $SUDO mv ./aws-iam-authenticator /usr/local/bin/aws-iam-authenticator
+
+      - run:
           name: Apply Kubernetes Deployment
           command: |
             kubectl apply -f deployments/deployments.yml --record
