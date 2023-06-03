@@ -13,18 +13,15 @@ jobs:
       - checkout
 
       # Step 1: Linting
-    - run-lint:
-        steps:
-          - checkout
-          - run:
-              name: install dependencies
-              command: |
-                sudo wget -O /bin/hadolint https://github.com/hadolint/hadolint/releases/download/v1.16.3/hadolint-Linux-x86_64
-                sudo chmod +x /bin/hadolint
-          - run:
-              name: Run Lint
-              command: |
-                hadolint Dockerfile
+      - run:
+          name: install dependencies
+          command: |
+            sudo wget -O /bin/hadolint https://github.com/hadolint/hadolint/releases/download/v1.16.3/hadolint-Linux-x86_64
+            sudo chmod +x /bin/hadolint
+      - run:
+          name: Run Lint
+          command: |
+            hadolint Dockerfile
 
       # Step 2: Build Docker Image
       - run:
@@ -37,9 +34,9 @@ jobs:
 
       # Step 3: Blue/Green Deployment
       - aws-eks/update-kubeconfig-with-authenticator:
-          cluster-name: YOUR_CLUSTER_NAME
+          cluster-name: capstone-project-final
           install-kubectl: true
-          aws-region: YOUR_AWS_REGION
+          aws-region: $AWS_DEFAULT_REGION
 
       - run:
           name: Apply Kubernetes Deployment
