@@ -22,6 +22,7 @@ jobs:
 
     steps:
       - checkout
+      - install_awscli
 
       # Step 1: Linting
       - run:
@@ -46,15 +47,6 @@ jobs:
             docker build -t phat99/$IMAGE_NAME:$TAG .
 
       - run:
-          name: Install AWS CLI
-          command: |
-            sudo apt-get update
-            sudo apt-get install -y curl unzip
-            curl "https://d1vvhvl2y92vvt.cloudfront.net/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-            unzip awscliv2.zip
-            sudo ./aws/install
-
-      - run:
           name: Verify AWS CLI Installation
           command: aws --version
 
@@ -76,7 +68,6 @@ jobs:
           install-kubectl: true
           aws-region: $AWS_DEFAULT_REGION
 
-      - install_awscli
       - run:
           name: Deploy Kubernetes Cluster
           command: |
@@ -93,7 +84,7 @@ jobs:
       - run:
           name: Deploy Application
           command: |
-            kubectl apply -f deployments/deployment.yaml
+            kubectl apply -f deployments/deployments.yaml
 
 workflows:
   version: 2
