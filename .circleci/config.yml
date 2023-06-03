@@ -9,8 +9,7 @@ jobs:
       - image: circleci/node:13.8.0
 
     steps:
-      - checkout
-
+      - checkout+
       # Step 1: Linting
       - run:
           name: install dependencies
@@ -43,25 +42,6 @@ jobs:
           cluster-name: capstone-project-final
           install-kubectl: true
           aws-region: $AWS_DEFAULT_REGION
-
-      - run:
-          name: Deploy Kubernetes Cluster
-          command: |
-            aws cloudformation deploy --stack-name capstone-project-final --template-file cloudformation/cloudformation.yml --parameter-overrides ID=$ID --capabilities CAPABILITY_IAM
-
-            # Wait for the CloudFormation stack to complete
-            aws cloudformation wait stack-create-complete --stack-name capstone-project-final
-
-            # Retrieve the Kubernetes cluster details
-            export KUBECONFIG=$PWD/kubeconfig.yaml
-            aws eks update-kubeconfig --region $AWS_DEFAULT_REGION --name capstone-project-final --kubeconfig $KUBECONFIG
-
-      # Step 5: Deploy Application to Kubernetes Cluster
-      - run:
-          name: Deploy Application
-          command: |
-            kubectl apply -f deployments/deployment.yml --record
-            kubectl rollout status deployment/capstone-engineer-cloud-hotanphat
 
 workflows:
   version: 2
