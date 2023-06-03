@@ -19,7 +19,7 @@ jobs:
   build-and-deploy:
     docker:
       - image: circleci/node:13.8.0
-      - image: amazon/aws-cli:latest
+      - image: amazon/aws-cli:2.7.21
     steps:
       - checkout
 
