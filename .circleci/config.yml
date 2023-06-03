@@ -1,0 +1,48 @@
+version: 2.1
+
+orbs:
+  aws-eks: circleci/aws-eks@0.2.3
+  aws-ecr: circleci/aws-ecr@3.1.0
+
+jobs:
+  build-and-deploy:
+    docker:
+      - image: circleci/node:13.8.0
+
+    steps:
+      - checkout
+
+      # Step 1: Linting
+      - run:
+          name: Linting
+          command: |
+            npm install eslint --save-dev
+            npx eslint .
+      # Step 2: Build Docker Image
+      - run:
+          name: Build Docker Image
+          command: |
+            export TAG=v${CIRCLE_BUILD_NUM}
+            export IMAGE_NAME=capstone-project-final
+
+            docker build -t phat99/$IMAGE_NAME:$TAG .
+
+      # Step 3: Blue/Green Deployment
+      - aws-eks/update-kubeconfig-with-authenticator:
+          cluster-name: YOUR_CLUSTER_NAME
+          install-kubectl: true
+          aws-region: YOUR_AWS_REGION
+          version: "1.20"
+
+      - run:
+          name: Apply Kubernetes Deployment
+          command: |
+            kubectl apply -f deployments/deployments.yml --record
+
+            kubectl rollout status deployment/your-deployment-name
+
+workflows:
+  version: 2
+  build-and-deploy:
+    jobs:
+      - build-and-deploy
