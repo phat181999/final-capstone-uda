@@ -1,9 +1,5 @@
 version: 2.1
 
-orbs:
-  aws-eks: circleci/aws-eks@0.2.3
-  aws-ecr: circleci/aws-ecr@3.1.0
-
 jobs:
   build-and-deploy:
     docker:
@@ -16,7 +12,7 @@ jobs:
       - run:
           name: Install AWS CLI
           command: |
-            python3 -m pip install awscli --upgrade --user
+            pip install awscli --upgrade --user
 
       # Step 2: Configure AWS credentials
       - run:
@@ -36,9 +32,10 @@ jobs:
             aws cloudformation wait stack-create-complete --stack-name capstone-project-final
 
       # Step 4: Update kubeconfig for AWS EKS cluster
-      - aws-eks/update-kubeconfig:
-          cluster-name: capstone-project-final
-          aws-region: $AWS_DEFAULT_REGION
+      - run:
+          name: Update kubeconfig
+          command: |
+            aws eks update-kubeconfig --region $AWS_DEFAULT_REGION --name capstone-project-final
 
       # Step 5: Deploy Kubernetes resources
       - run:
