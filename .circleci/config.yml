@@ -26,7 +26,7 @@ jobs:
       - run:
           name: Deploy CloudFormation stack
           command: |
-            aws cloudformation deploy --stack-name capstone-project-final --template-file cloudformation/cloudformation.yml --parameter-overrides ID=plaplapla --capabilities CAPABILITY_IAM
+            aws cloudformation deploy --stack-name capstone-project-final --template-file cloudformation/cloudformation.yml --parameter-overrides ID=$ID --capabilities CAPABILITY_IAM
 
             # Wait for the CloudFormation stack to complete
             aws cloudformation wait stack-create-complete --stack-name capstone-project-final
@@ -41,8 +41,14 @@ jobs:
       - run:
           name: Deploy Kubernetes resources
           command: |
-            kubectl apply -f deployments/deployment.yml --record
+            kubectl apply -f deployments/deployments.yml --record
             kubectl rollout status deployment/capstone-engineer-cloud-hotanphat
+
+      # Step 6: Attach source code to the deployed resources
+      - persist_to_workspace:
+          root: .
+          paths:
+            - src/
 
 workflows:
   version: 2

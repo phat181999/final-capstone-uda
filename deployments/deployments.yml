@@ -1,25 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: capstone
-  labels:
-    app: capstone
+  name: capstone-engineer-cloud-hotanphat
 spec:
+  replicas: 3
   selector:
     matchLabels:
-      app: capstone
-  replicas: 3
+      app: capstone-engineer-cloud-hotanphat
   template:
     metadata:
       labels:
-        app: capstone
+        app: capstone-engineer-cloud-hotanphat
     spec:
       containers:
-        - name: app
-          image: phat99/capstone-engineer-cloud-hotanphat:latest
-          resources:
-            requests:
-              cpu: 100m
-              memory: 100Mi
+        - name: capstone-engineer-cloud-hotanphat
+          image: your-image:tag
           ports:
-            - containerPort: 8080
+            - containerPort: 80
