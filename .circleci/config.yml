@@ -19,9 +19,9 @@ jobs:
   build-and-deploy:
     docker:
       - image: circleci/node:13.8.0
+      - image: circleci/python:3.8
     steps:
       - checkout
-      - install_awscli
       # Step 1: Linting
       - run:
           name: install dependencies
@@ -32,7 +32,14 @@ jobs:
           name: Run Lint
           command: |
             hadolint Dockerfile
+      - run:
+          name: Install AWS CLI
+          command: |
+            pip install --upgrade awscli
 
+      - run:
+          name: Verify AWS CLI Installation
+          command: aws --version
       - setup_remote_docker:
           version: 20.10.7
       # Step 2: Build Docker Image
