@@ -23,8 +23,7 @@ jobs:
       - run:
           name: Deploy CloudFormation stack
           command: |
-            msg='encoded message'
-            aws sts decode-authorization-message --encoded-message "$msg" --output text | sed 's/,/\n\r/g' | sed 's/{//g' | sed 's/}//g' | sed 's/"//g'
+
             aws cloudformation deploy --stack-name capstone-project-final --template-file cloudformation/cloudformation.yml --parameter-overrides ID=123 --capabilities CAPABILITY_IAM
 
             aws cloudformation wait stack-create-complete --stack-name capstone-project-final
