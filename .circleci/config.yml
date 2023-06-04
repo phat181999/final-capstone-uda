@@ -29,10 +29,6 @@ jobs:
             aws cloudformation wait stack-create-complete --stack-name capstone-project-final
 
       - run:
-          name: Update kubeconfig
-          command: |
-            aws eks --region $AWS_DEFAULT_REGION update-kubeconfig --name eks_orb_capstone_project
-      - run:
           name: Deploy Kubernetes resources
           command: |
             kubectl apply -f deployments/deployments.yml --record
