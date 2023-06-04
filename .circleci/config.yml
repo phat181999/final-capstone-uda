@@ -8,13 +8,11 @@ jobs:
     steps:
       - checkout
 
-      # Step 1: Install AWS CLI
       - run:
           name: Install AWS CLI
           command: |
             pip install awscli --upgrade --user
 
-      # Step 2: Configure AWS credentials
       - run:
           name: Configure AWS credentials
           command: |
@@ -22,29 +20,24 @@ jobs:
             echo AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY >> $BASH_ENV
             echo AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION >> $BASH_ENV
 
-      # Step 3: Deploy CloudFormation stack
       - run:
           name: Deploy CloudFormation stack
           command: |
-            aws cloudformation deploy --stack-name capstone-project-final --template-file cloudformation/cloudformation.yml --parameter-overrides ID=${{ parameters.ID }} --capabilities CAPABILITY_IAM
+            aws cloudformation deploy --stack-name capstone-project-final --template-file cloudformation/cloudformation.yml --parameter-overrides ID=123 --capabilities CAPABILITY_IAM
 
-            # Wait for the CloudFormation stack to complete
             aws cloudformation wait stack-create-complete --stack-name capstone-project-final
 
-      # Step 4: Update kubeconfig for AWS EKS cluster
       - run:
           name: Update kubeconfig
           command: |
             aws eks update-kubeconfig --region $AWS_DEFAULT_REGION --name capstone-project-final
 
-      # Step 5: Deploy Kubernetes resources
       - run:
           name: Deploy Kubernetes resources
           command: |
             kubectl apply -f deployments/deployments.yml --record
             kubectl rollout status deployment/capstone-engineer-cloud-hotanphat
 
-      # Step 6: Attach source code to the deployed resources
       - persist_to_workspace:
           root: .
           paths:
