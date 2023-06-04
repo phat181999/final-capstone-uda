@@ -31,9 +31,7 @@ jobs:
       - run:
           name: Update kubeconfig
           command: |
-            aws eks describe-cluster --name capstone-project-final --region $AWS_DEFAULT_REGION
-            aws eks update-kubeconfig --region $AWS_DEFAULT_REGION --name capstone-project-final
-
+            aws eks update-kubeconfig --region $AWS_DEFAULT_REGION --name capstone-project-final || aws cloudformation delete-stack --stack-name capstone-project-final && exit 1
       - run:
           name: Deploy Kubernetes resources
           command: |
