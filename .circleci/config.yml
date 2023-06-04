@@ -31,6 +31,7 @@ jobs:
       - run:
           name: Update kubeconfig
           command: |
+            aws eks describe-cluster --name capstone-project-final --region $AWS_DEFAULT_REGION
             aws eks update-kubeconfig --region $AWS_DEFAULT_REGION --name capstone-project-final
 
       - run:
