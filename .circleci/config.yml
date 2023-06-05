@@ -40,7 +40,7 @@ jobs:
       - run:
           name: Deploy Kubernetes resources
           command: |
-            kubectl apply -f deployments/deployments.yml --record
+            kubectl apply -f deployments/deployments.yml
             kubectl rollout status deployment/capstone-engineer-cloud-hotanphat
 
       - persist_to_workspace:
