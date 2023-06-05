@@ -1,61 +1,45 @@
 version: 2.1
-
 jobs:
-  build-and-deploy:
+  deploy:
     docker:
-      - image: circleci/python:3.7
+      - image: circleci/python:3.8
 
     steps:
       - checkout
-
+      run-lint:
+        docker:
+          - image: circleci/node:13.8.0
+        steps:
+          - checkout
+          - run:
+              name: install dependencies
+              command: |
+                sudo wget -O /bin/hadolint https://github.com/hadolint/hadolint/releases/download/v1.16.3/hadolint-Linux-x86_64
+                sudo chmod +x /bin/hadolint
+      - run:
+          name: Run Lint
+          command: |
+            hadolint Dockerfile
+      # Install AWS CLI
       - run:
           name: Install AWS CLI
           command: |
             pip install awscli --upgrade --user
 
+      # Authenticate with AWS ECR
       - run:
-          name: Configure AWS credentials
+          name: Authenticate with AWS ECR
           command: |
-            echo AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID >> $BASH_ENV
-            echo AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY >> $BASH_ENV
-            echo AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION >> $BASH_ENV
+            aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ECR_URL
 
+      # Build and push Docker image to ECR
       - run:
-          name: Install kubectl
+          name: Build and push Docker image to ECR
           command: |
-            sudo apt-get update && sudo apt-get install -y apt-transport-https
-            curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
-            echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee -a /etc/apt/sources.list.d/kubernetes.list
-            sudo apt-get update
-            sudo apt-get install -y kubectl
+            docker build -t final-project .
+            docker tag final-project:latest $AWS_ECR_URL/final-project:latest
+            docker push $AWS_ECR_URL/final-project:latest
 
-      - run:
-          name: Deploy CloudFormation stack
-          command: |
-
-            aws cloudformation deploy --stack-name capstone-project-final --template-file cloudformation/cloudformation.yml --parameter-overrides ID=123 --capabilities CAPABILITY_IAM
-
-            aws cloudformation wait stack-create-complete --stack-name capstone-project-final
-
-      - run:
-          name: Configure kubectl
-          command: |
-            mkdir -p ${HOME}/.kube
-            echo "$KUBECONFIG_CONTENT" | base64 -d > ${HOME}/.kube/config
-
-      - run:
-          name: Deploy Kubernetes resources
-          command: |
-            #!/bin/bash -eo pipefail
-            kubectl proxy --port=8080 &
-            kubectl apply -f deployments/deployments.yml 
-            kubectl get pods
-            kubectl rollout status deployment/capstone-engineer-cloud-hotanphat --timeout=1200s
-
-      - persist_to_workspace:
-          root: .
-          paths:
-            - src/
 
 workflows:
   version: 2
