@@ -40,8 +40,10 @@ jobs:
       - run:
           name: Configure kubectl
           command: |
-            mkdir -p ${HOME}/.kube
-            echo "$KUBECONFIG_CONTENT" | base64 -d > ${HOME}/.kube/config
+            $env:KUBECONFIG_PATH = "${HOME}\.kube\config"
+            $env:KUBECONFIG_CONTENT = Get-Content -Path "C:\path\to\your\kubeconfig" -Raw
+            $env:KUBECONFIG_CONTENT_ENCODED = [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($env:KUBECONFIG_CONTENT))
+            Set-Content -Path $env:KUBECONFIG_PATH -Value $env:KUBECONFIG_CONTENT -Encoding UTF8
 
       - run:
           name: Deploy Kubernetes resources
