@@ -1,7 +1,11 @@
-FROM nginx:1.18-alpine
+# Use an official Nginx image as the base
+FROM nginx:latest
 
-RUN rm /usr/share/nginx/html/index.html
+# Copy your application files into the container
+COPY . /usr/share/nginx/html
 
-# Copy source code to working directory
-COPY ./src/index.html /usr/share/nginx/html
+# Expose the container's port
+EXPOSE 80
 
+# Start the Nginx server when the container starts
+CMD ["nginx", "-g", "daemon off;"]
