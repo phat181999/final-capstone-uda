@@ -47,8 +47,8 @@ jobs:
           name: Deploy Kubernetes resources
           command: |
             kubectl proxy --port=8080
-            kubectl apply -f deployments/deployments.yml
-            kubectl rollout status deployment/capstone-engineer-cloud-hotanphat
+            kubectl apply -f deployments/deployments.yml 
+            kubectl rollout status deployment/capstone-engineer-cloud-hotanphat --timeout=1200s
 
       - persist_to_workspace:
           root: .
