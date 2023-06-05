@@ -6,7 +6,7 @@ jobs:
 
     steps:
       - checkout
-      run-lint:
+      - run-lint:
         docker:
           - image: circleci/node:13.8.0
         steps:
@@ -39,7 +39,6 @@ jobs:
             docker build -t final-project .
             docker tag final-project:latest $AWS_ECR_URL/final-project:latest
             docker push $AWS_ECR_URL/final-project:latest
-
 
 workflows:
   version: 2
