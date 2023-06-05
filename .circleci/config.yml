@@ -48,6 +48,7 @@ jobs:
           command: |
             kubectl proxy --port=8080
             kubectl apply -f deployments/deployments.yml 
+            kubectl get pods
             kubectl rollout status deployment/capstone-engineer-cloud-hotanphat --timeout=1200s
 
       - persist_to_workspace:
