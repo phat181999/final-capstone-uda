@@ -39,7 +39,7 @@ jobs:
       # Start Docker service
       - run:
           name: Start Docker service
-          command: sudo service docker start
+          command: service docker start
 
       # Set up remote Docker environment
       - setup_remote_docker:
