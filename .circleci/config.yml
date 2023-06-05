@@ -29,7 +29,21 @@ jobs:
           name: Authenticate with AWS ECR
           command: |
             aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ECR_URL
+      # Install Docker client
+      - run:
+          name: Install Docker client
+          command: |
+            curl -fsSL https://get.docker.com -o get-docker.sh
+            sudo sh get-docker.sh
 
+      # Start Docker service
+      - run:
+          name: Start Docker service
+          command: sudo service docker start
+
+      # Set up remote Docker environment
+      - setup_remote_docker:
+          version: 20.10.9
       # Build and push Docker image to ECR
       - run:
           name: Build and push Docker image to ECR
