@@ -38,6 +38,12 @@ jobs:
             aws cloudformation wait stack-create-complete --stack-name capstone-project-final
 
       - run:
+          name: Configure kubectl
+          command: |
+            mkdir -p ${HOME}/.kube
+            echo "$KUBECONFIG_CONTENT" | base64 -d > ${HOME}/.kube/config
+
+      - run:
           name: Deploy Kubernetes resources
           command: |
             kubectl apply -f deployments/deployments.yml
