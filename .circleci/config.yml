@@ -51,7 +51,18 @@ jobs:
             docker tag final-project-phat phat99/final-project-phat
             docker push phat99/final-project-phat
 
-  create-cluster:
+  # create-cluster:
+  #   executor: aws-eks/python3
+  #   parameters:
+  #     cluster-name:
+  #       description: |
+  #         final-project
+  #       type: string
+  #   steps:
+  #     - aws-eks/create-cluster:
+  #         cluster-name: << parameters.cluster-name >>
+
+  deploy-to-cluster:
     executor: aws-eks/python3
     parameters:
       cluster-name:
@@ -59,21 +70,10 @@ jobs:
           final-project
         type: string
     steps:
-      - aws-eks/create-cluster:
-          cluster-name: << parameters.cluster-name >>
-
-  deploy-to-cluster:
-    executor: aws-eks/python3
-    parameters:
-      cluster-name:
-        description: |
-          final-project-phat
-        type: string
-    steps:
       - checkout
       - kubernetes/install
       - aws-eks/update-kubeconfig-with-authenticator:
-          cluster-name: << parameters.cluster-name >>
+          cluster-name: final-project
           install-kubectl: true
       - kubernetes/create-or-update-resource:
           # get-rollout-status: true
@@ -85,12 +85,12 @@ jobs:
     parameters:
       cluster-name:
         description: |
-          final-project-phat
+          final-project
         type: string
     steps:
       - kubernetes/install
       - aws-eks/update-kubeconfig-with-authenticator:
-          cluster-name: << parameters.cluster-name >>
+          cluster-name: final-project
       - run:
           name: check cluster
           command: |
@@ -103,14 +103,14 @@ workflows:
       - lint-app
       - build-push-docker-image:
           requires: [lint-app]
-      - create-cluster:
+      # - create-cluster:
+      #     cluster-name: final-project
+      #     requires: [build-push-docker-image]
+      - deploy-to-cluster:
           cluster-name: final-project
           requires: [build-push-docker-image]
-      - deploy-to-cluster:
-          cluster-name: final-project-phat
-          requires: [create-cluster]
       - aws-eks/update-container-image:
-          cluster-name: final-project-phat
+          cluster-name: final-project
           container-image-updates: final-project-phat=phat99/final-project-phat
           post-steps:
             - kubernetes/delete-resource:
@@ -121,8 +121,8 @@ workflows:
           requires: [deploy-to-cluster]
           resource-name: deployment/final-project-phat
       - check-cluster:
-          cluster-name: final-project-phat
+          cluster-name: final-project
           requires: [aws-eks/update-container-image]
-      - aws-eks/delete-cluster:
-          cluster-name: final-project-phat
-          requires: [check-cluster]
+      # - aws-eks/delete-cluster:
+      #     cluster-name: final-project-phat
+      #     requires: [check-cluster]
