@@ -50,6 +50,17 @@ jobs:
             docker tag final-project-phat phat99/final-project-phat
             docker push phat99/final-project-phat
 
+  create-cluster:
+    executor: aws-eks/python3
+    parameters:
+      cluster-name:
+        description: |
+          final-project
+        type: string
+    steps:
+      - aws-eks/create-cluster:
+          cluster-name: << parameters.cluster-name >>
+
   deploy-to-cluster:
     executor: aws-eks/python3
     parameters:
@@ -91,9 +102,9 @@ workflows:
       - lint-app
       - build-push-docker-image:
           requires: [lint-app]
-      - aws-eks/create-cluster:
-          cluster-name: final-project-phat
-          aws-region: $AWS_DEFAULT_REGION
+      - create-cluster:
+          cluster-name: final-project
+          requires: [build-push-docker-image]
       - deploy-to-cluster:
           cluster-name: final-project-phat
           requires: [aws-eks/create-cluster]
