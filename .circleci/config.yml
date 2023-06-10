@@ -107,7 +107,7 @@ workflows:
           requires: [build-push-docker-image]
       - deploy-to-cluster:
           cluster-name: final-project-phat
-          requires: [aws-eks/create-cluster]
+          requires: [create-cluster]
       - aws-eks/update-container-image:
           cluster-name: final-project-phat
           container-image-updates: final-project-phat=phat99/final-project-phat
