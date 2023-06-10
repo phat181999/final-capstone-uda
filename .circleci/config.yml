@@ -37,16 +37,18 @@ jobs:
     working_directory: ~/app
     steps:
       - checkout
+      - setup_remote_docker:
+          version: 20.10.7
       - run:
           name: build and push docker image
           command: |
-            #Login to docker hub
-            docker login --username $DOCKER_USERNAME --password $DOCKER_PASSWORD
+            # Login to Docker Hub
+            echo "$DOCKER_PASSWORD" | docker login --username "$DOCKER_USERNAME" --password-stdin
             # Build image and add a descriptive tag
             docker build --tag=final-project-phat .
             # List docker images
             docker image ls
-            # Push image to a docker repository
+            # Push image to a Docker repository
             docker tag final-project-phat phat99/final-project-phat
             docker push phat99/final-project-phat
 
@@ -75,7 +77,6 @@ jobs:
           cluster-name: << parameters.cluster-name >>
           install-kubectl: true
       - kubernetes/create-or-update-resource:
-          # get-rollout-status: true
           resource-file-path: deployment.yml
           resource-name: deployment/final-project-phat
 
@@ -108,20 +109,6 @@ workflows:
       - deploy-to-cluster:
           cluster-name: final-project-phat
           requires: [create-cluster]
-      - aws-eks/update-container-image:
-          cluster-name: final-project-phat
-          container-image-updates: final-project-phat=phat99/final-project-phat
-          post-steps:
-            - kubernetes/delete-resource:
-                resource-names: final-project-phat
-                resource-types: deployment
-                wait: true
-          record: true
-          requires: [deploy-to-cluster]
-          resource-name: deployment/final-project-phat
       - check-cluster:
           cluster-name: final-project-phat
-          requires: [aws-eks/update-container-image]
-      - aws-eks/delete-cluster:
-          cluster-name: final-project-phat
-          requires: [check-cluster]
+          requires: [deploy-to-cluster]
