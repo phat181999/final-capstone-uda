@@ -1,5 +1,9 @@
 version: 2.1
 
+orbs:
+  aws-eks: circleci/aws-eks@1.0.3
+  kubernetes: circleci/kubernetes@0.11.2
+
 executors:
   python:
     docker:
@@ -81,10 +85,6 @@ jobs:
             kubectl get nodes
             kubectl get deployment
 
-orbs:
-  aws-eks: circleci/aws-eks@1.0.3
-  kubernetes: circleci/kubernetes@0.11.2
-
 workflows:
   deployment:
     jobs:
@@ -93,6 +93,7 @@ workflows:
           requires: [lint-app]
       - aws-eks/create-cluster:
           cluster-name: final-project-phat
+          aws-region: $AWS_DEFAULT_REGION
       - deploy-to-cluster:
           cluster-name: final-project-phat
           requires: [aws-eks/create-cluster]
